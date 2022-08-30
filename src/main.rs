@@ -86,78 +86,87 @@ fn mode_branch(mut image: drawing::Draw) {
                             let g = input("Enter g of rgba > ");
                             let b = input("Enter b of rgba > ");
                             let a = input("Enter a of rgba > ");
-                            let (r, resr) = type_checker(&r);
-                            let (g, resg) = type_checker(&g);
-                            let (b, resb) = type_checker(&b);
-                            let (a, resa) = type_checker(&a);
-                            if resr
-                                && resg
-                                && resb
-                                && resa
-                                && range_checker(r)
-                                && range_checker(g)
-                                && range_checker(b)
-                                && range_checker(a)
+                            if null_checker(&r)
+                                && null_checker(&g)
+                                && null_checker(&b)
+                                && null_checker(&a)
                             {
-                                let rgba = [r as u8, g as u8, b as u8, a as u8];
-                                let definitive_scope2 = scope2.clone();
-                                let definitive_scope4 = scope4.clone();
-                                if scope2.len() != 0 && scope4.len() != 0 {
-                                    let verification_image = image.clone();
-                                    if drawing::Draw::scope_checker2(
-                                        &verification_image,
-                                        &definitive_scope2,
-                                    ) && drawing::Draw::scope_checker4(
-                                        &verification_image,
-                                        &definitive_scope4,
-                                    ) {
-                                        drawing::Draw::pixel_color2(
-                                            &mut image,
+                                let (r, resr) = type_checker(&r);
+                                let (g, resg) = type_checker(&g);
+                                let (b, resb) = type_checker(&b);
+                                let (a, resa) = type_checker(&a);
+                                if resr
+                                    && resg
+                                    && resb
+                                    && resa
+                                    && range_checker(r)
+                                    && range_checker(g)
+                                    && range_checker(b)
+                                    && range_checker(a)
+                                {
+                                    let rgba = [r as u8, g as u8, b as u8, a as u8];
+                                    let definitive_scope2 = scope2.clone();
+                                    let definitive_scope4 = scope4.clone();
+                                    if scope2.len() != 0 && scope4.len() != 0 {
+                                        let verification_image = image.clone();
+                                        if drawing::Draw::scope_checker2(
+                                            &verification_image,
                                             &definitive_scope2,
-                                            rgba,
-                                        );
-                                        drawing::Draw::pixel_color4(
-                                            &mut image,
+                                        ) && drawing::Draw::scope_checker4(
+                                            &verification_image,
                                             &definitive_scope4,
-                                            rgba,
-                                        );
-                                    } else {
-                                        println!("The range of x or y is not valid.");
-                                        break;
-                                    }
-                                } else if scope2.len() != 0 {
-                                    let verification_image = image.clone();
-                                    if drawing::Draw::scope_checker2(
-                                        &verification_image,
-                                        &definitive_scope2,
-                                    ) {
-                                        drawing::Draw::pixel_color2(
-                                            &mut image,
+                                        ) {
+                                            drawing::Draw::pixel_color2(
+                                                &mut image,
+                                                &definitive_scope2,
+                                                rgba,
+                                            );
+                                            drawing::Draw::pixel_color4(
+                                                &mut image,
+                                                &definitive_scope4,
+                                                rgba,
+                                            );
+                                        } else {
+                                            println!("The range of x or y is not valid.");
+                                            break;
+                                        }
+                                    } else if scope2.len() != 0 {
+                                        let verification_image = image.clone();
+                                        if drawing::Draw::scope_checker2(
+                                            &verification_image,
                                             &definitive_scope2,
-                                            rgba,
-                                        );
+                                        ) {
+                                            drawing::Draw::pixel_color2(
+                                                &mut image,
+                                                &definitive_scope2,
+                                                rgba,
+                                            );
+                                        } else {
+                                            println!("The range of x or y is not valid.");
+                                            break;
+                                        }
                                     } else {
-                                        println!("The range of x or y is not valid.");
-                                        break;
-                                    }
-                                } else {
-                                    let verification_image = image.clone();
-                                    if drawing::Draw::scope_checker4(
-                                        &verification_image,
-                                        &definitive_scope4,
-                                    ) {
-                                        drawing::Draw::pixel_color4(
-                                            &mut image,
+                                        let verification_image = image.clone();
+                                        if drawing::Draw::scope_checker4(
+                                            &verification_image,
                                             &definitive_scope4,
-                                            rgba,
-                                        );
-                                    } else {
-                                        println!("The range of x or y is not valid.");
-                                        break;
+                                        ) {
+                                            drawing::Draw::pixel_color4(
+                                                &mut image,
+                                                &definitive_scope4,
+                                                rgba,
+                                            );
+                                        } else {
+                                            println!("The range of x or y is not valid.");
+                                            break;
+                                        }
                                     }
+                                    scope2.clear();
+                                    scope4.clear();
                                 }
-                                scope2.clear();
-                                scope4.clear();
+                            } else {
+                                println!("Something is not written.");
+                                break;
                             }
                         }
                     } else {
@@ -216,84 +225,93 @@ fn mode_branch(mut image: drawing::Draw) {
                                     let g = input("Enter g of rgba > ");
                                     let b = input("Enter b of rgba > ");
                                     let a = input("Enter a of rgba > ");
-                                    let (r, resr) = type_checker(&r);
-                                    let (g, resg) = type_checker(&g);
-                                    let (b, resb) = type_checker(&b);
-                                    let (a, resa) = type_checker(&a);
-                                    if resr
-                                        && resg
-                                        && resb
-                                        && resa
-                                        && range_checker(r)
-                                        && range_checker(g)
-                                        && range_checker(b)
-                                        && range_checker(a)
+                                    if null_checker(&r)
+                                        && null_checker(&g)
+                                        && null_checker(&b)
+                                        && null_checker(&a)
                                     {
-                                        let rgba = [r as u8, g as u8, b as u8, a as u8];
-                                        let definitive_scope2 = scope2.clone();
-                                        let definitive_scope4 = scope4.clone();
-                                        let verification_image = image.clone();
-                                        if scope2.len() != 0 && scope4.len() != 0 {
-                                            if drawing::Draw::scope_checker2b(
-                                                &verification_image,
-                                                block,
-                                                &definitive_scope2,
-                                            ) && drawing::Draw::scope_checker4b(
-                                                &verification_image,
-                                                block,
-                                                &definitive_scope4,
-                                            ) {
-                                                drawing::Draw::block_color2(
-                                                    &mut image,
+                                        let (r, resr) = type_checker(&r);
+                                        let (g, resg) = type_checker(&g);
+                                        let (b, resb) = type_checker(&b);
+                                        let (a, resa) = type_checker(&a);
+                                        if resr
+                                            && resg
+                                            && resb
+                                            && resa
+                                            && range_checker(r)
+                                            && range_checker(g)
+                                            && range_checker(b)
+                                            && range_checker(a)
+                                        {
+                                            let rgba = [r as u8, g as u8, b as u8, a as u8];
+                                            let definitive_scope2 = scope2.clone();
+                                            let definitive_scope4 = scope4.clone();
+                                            let verification_image = image.clone();
+                                            if scope2.len() != 0 && scope4.len() != 0 {
+                                                if drawing::Draw::scope_checker2b(
+                                                    &verification_image,
                                                     block,
                                                     &definitive_scope2,
-                                                    rgba,
-                                                );
-                                                drawing::Draw::block_color4(
-                                                    &mut image,
+                                                ) && drawing::Draw::scope_checker4b(
+                                                    &verification_image,
                                                     block,
                                                     &definitive_scope4,
-                                                    rgba,
-                                                );
-                                            } else {
-                                                println!("The range of x or y is not valid.");
-                                                break;
-                                            }
-                                        } else if scope2.len() != 0 {
-                                            if drawing::Draw::scope_checker2b(
-                                                &verification_image,
-                                                block,
-                                                &definitive_scope2,
-                                            ) {
-                                                drawing::Draw::block_color2(
-                                                    &mut image,
+                                                ) {
+                                                    drawing::Draw::block_color2(
+                                                        &mut image,
+                                                        block,
+                                                        &definitive_scope2,
+                                                        rgba,
+                                                    );
+                                                    drawing::Draw::block_color4(
+                                                        &mut image,
+                                                        block,
+                                                        &definitive_scope4,
+                                                        rgba,
+                                                    );
+                                                } else {
+                                                    println!("The range of x or y is not valid.");
+                                                    break;
+                                                }
+                                            } else if scope2.len() != 0 {
+                                                if drawing::Draw::scope_checker2b(
+                                                    &verification_image,
                                                     block,
                                                     &definitive_scope2,
-                                                    rgba,
-                                                );
+                                                ) {
+                                                    drawing::Draw::block_color2(
+                                                        &mut image,
+                                                        block,
+                                                        &definitive_scope2,
+                                                        rgba,
+                                                    );
+                                                } else {
+                                                    println!("The range of x or y is not valid.");
+                                                    break;
+                                                }
                                             } else {
-                                                println!("The range of x or y is not valid.");
-                                                break;
-                                            }
-                                        } else {
-                                            if drawing::Draw::scope_checker4b(
-                                                &verification_image,
-                                                block,
-                                                &definitive_scope4,
-                                            ) {
-                                                drawing::Draw::block_color4(
-                                                    &mut image,
+                                                if drawing::Draw::scope_checker4b(
+                                                    &verification_image,
                                                     block,
                                                     &definitive_scope4,
-                                                    rgba,
-                                                );
-                                            } else {
-                                                println!("The range of x or y is not valid.");
-                                                break;
+                                                ) {
+                                                    drawing::Draw::block_color4(
+                                                        &mut image,
+                                                        block,
+                                                        &definitive_scope4,
+                                                        rgba,
+                                                    );
+                                                } else {
+                                                    println!("The range of x or y is not valid.");
+                                                    break;
+                                                }
                                             }
+                                            scope2.clear();
+                                            scope4.clear();
                                         }
-                                        scope2.clear();
-                                        scope4.clear();
+                                    } else {
+                                        println!("Something is not written.");
+                                        break;
                                     }
                                 }
                             } else {
