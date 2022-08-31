@@ -1,20 +1,20 @@
 use image::{self, imageops, ImageBuffer, Rgba, RgbaImage};
-
-#[derive(Clone)]
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::io::prelude::*;
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Draw {
-    title: String,
-    file_format: String,
+    pub title: String,
+    pub file_format: String,
     size: (u32, u32),
     horizontal: u32,
     vertical: u32,
     picture: Vec<Vec<[u8; 4]>>,
-    image: ImageBuffer<Rgba<u8>, Vec<u8>>,
 }
 impl Draw {
     pub fn new(title: String, file_format: String, size: (u32, u32)) -> Self {
         let (horizontal, vertical) = size;
         let picture = generate(horizontal, vertical);
-        let image = RgbaImage::new(horizontal, vertical);
         fn generate(horizontal: u32, vertical: u32) -> Vec<Vec<[u8; 4]>> {
             let mut picture: Vec<Vec<[u8; 4]>> = Vec::new();
             for _ in 0..vertical {
@@ -29,7 +29,6 @@ impl Draw {
             horizontal: horizontal,
             vertical: vertical,
             picture: picture,
-            image: image,
         }
     }
     pub fn scope_checker2(&self, scopes: &Vec<(u32, u32)>) -> bool {
@@ -94,15 +93,33 @@ impl Draw {
             false
         }
     }
-    pub fn pixel_color2(&mut self, scope: &Vec<(u32, u32)>, rgba: [u8; 4]) {
+
+    pub fn load(&self, title: &String) -> Draw {
+        let file_path = format!(r".\output\save\{}", title);
+        let data = fs::read_to_string(file_path).expect("Failed to load.");
+        let instance = serde_json::from_str(&data).unwrap();
+        instance
+    }
+
+    pub fn pixel_color2(
+        &mut self,
+        scope: &Vec<(u32, u32)>,
+        rgba: [u8; 4],
+        image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
+    ) {
         for place in scope {
             let x = place.0 as usize;
             let y = place.1 as usize;
             self.picture[y - 1][x - 1] = rgba;
         }
-        self.putpixel();
+        self.putpixel(image);
     }
-    pub fn pixel_color4(&mut self, scope: &Vec<(u32, u32, u32, u32)>, rgba: [u8; 4]) {
+    pub fn pixel_color4(
+        &mut self,
+        scope: &Vec<(u32, u32, u32, u32)>,
+        rgba: [u8; 4],
+        image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
+    ) {
         for place in scope {
             let x1 = place.0 as usize;
             let y1 = place.1 as usize;
@@ -132,9 +149,15 @@ impl Draw {
                 x1 += 1;
             }
         }
-        self.putpixel();
+        self.putpixel(image);
     }
-    pub fn block_color2(&mut self, block: (u32, u32), scope: &Vec<(u32, u32)>, rgba: [u8; 4]) {
+    pub fn block_color2(
+        &mut self,
+        block: (u32, u32),
+        scope: &Vec<(u32, u32)>,
+        rgba: [u8; 4],
+        image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
+    ) {
         let mut scopes: Vec<(u32, u32, u32, u32)> = Vec::new();
         let (width, height) = block;
         for place in scope {
@@ -147,13 +170,14 @@ impl Draw {
                 scopes.push((x1, y2, x2, y2));
             }
         }
-        self.pixel_color4(&scopes, rgba);
+        self.pixel_color4(&scopes, rgba, image);
     }
     pub fn block_color4(
         &mut self,
         block: (u32, u32),
         scope: &Vec<(u32, u32, u32, u32)>,
         rgba: [u8; 4],
+        image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
     ) {
         let mut scopes: Vec<(u32, u32, u32, u32)> = Vec::new();
         let (width, height) = block;
@@ -167,29 +191,33 @@ impl Draw {
                 scopes.push((x1, y2, x2, y2));
             }
         }
-        self.pixel_color4(&scopes, rgba);
+        self.pixel_color4(&scopes, rgba, image);
     }
-    pub fn putpixel(&mut self) {
+    fn putpixel(&mut self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>) {
         for (line, y) in self.picture.iter().zip(0..self.vertical) {
             for (rgba, x) in line.iter().zip(0..self.horizontal) {
                 let rgba = Rgba::<u8>(*rgba);
-                self.image.put_pixel(x, y, rgba);
+                image.put_pixel(x, y, rgba);
             }
         }
     }
-    pub fn scaling(&mut self, size: (u32, u32)) {
+    pub fn scaling(
+        &mut self,
+        size: (u32, u32),
+        image: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+    ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (x, y) = size;
         let file_path = format!(r".\output\temp\{}.{}", self.title, self.file_format);
-        self.image.save(&file_path).expect("Failed to save.");
+        image.save(&file_path).expect("Failed to save.");
         let mut unresized_image = image::open(&file_path).expect("Failed to save temp file.");
         std::fs::remove_file(file_path).expect("Failed to remove file.");
         let resized_image = imageops::resize(&mut unresized_image, x, y, imageops::Lanczos3);
-        self.image = resized_image;
+        resized_image
     }
-    pub fn confirm(&mut self) {
-        self.scaling(self.size);
+    pub fn confirm(&mut self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) {
+        self.scaling(self.size, &image);
         let file_name = format!(r".\output\confirm\{}.{}", self.title, self.file_format);
-        self.image.save(file_name).expect("Failed to save.");
+        image.save(file_name).expect("Failed to save.");
         println!(
             "To confirm, go to Explorer and check 'DRAWING-RUST/output/confirm/{}.{}' in Explorer.",
             self.title, self.file_format
@@ -198,10 +226,22 @@ impl Draw {
     pub fn show_list(&self) {
         println!("{:?}", self.picture);
     }
-    pub fn save(&mut self) {
-        self.scaling(self.size);
+
+    pub fn temporary_save(&self) {
+        let serialized = serde_json::to_string(self).unwrap();
+        let file_path = format!(r".\output\save\{}.json", self.title);
+        let mut file = fs::File::create(file_path).expect("Failed to create.");
+        file.write_all(serialized.as_bytes())
+            .expect("Failed to save.");
+    }
+
+    pub fn save(&mut self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, editable: bool) {
+        let image = &self.scaling(self.size, &image);
         let file_name = format!(r".\output\completed\{}.{}", self.title, self.file_format);
-        self.image.save(file_name).expect("Failed to save.");
+        image.save(file_name).expect("Failed to save.");
+        if editable {
+            self.temporary_save();
+        }
         println!("Saved.");
     }
     pub fn confirm_color_sample(&self, rgba: [u8; 4]) {
